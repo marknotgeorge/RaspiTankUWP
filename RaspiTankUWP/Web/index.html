@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>RaspiTank</title>
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <link href="css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="row">
+        <div class="col-sm-6 col-sm-push-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Turret Cam</h3>
+                </div>
+                <div class="panel-body">
+                    <img class="img-responsive" src="http://placehold.it/640x480" />
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-3 col-sm-pull-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Movement</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="joystick-panel">
+                        <div id="movestick" class="joystick"></div>
+                    </div>
+                    <div id="deltaValues"></div>
+                    <div id="returnValues"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-3 ">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Turret</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="joystick-panel">
+                        <div id="turretstick" class="joystick"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-1.12.1.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/kinetic-v4.6.0.min.js"></script>
+    <script src="js/jsjoystick.js"></script>
+    <script type="text/javascript">
+        $('#movestick').jsJoystick({
+            callBackFunc: function (evt) {
+                var now = Date.now();
+                var deltaString = "deltaXPercent: " + evt.deltaXPercent + " deltaYPercent: " + evt.deltaYPercent;
+                $('#deltaValues').html(deltaString);
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/move/' + evt.deltaXPercent + '/' + evt.deltaYPercent + '/' + now
+                })
+                .success(function (result) {
+                    var returnString = 'Left: ' + result.Left + 'Right: ' + result.Right;
+                    $('#returnValues').html(returnString);
+                })
+            }
+        });
+        $('#turretstick').jsJoystick({
+            callBackFunc: function (evt) {
+                var now = Date.now();
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/turret/' + evt.deltaXPercent + '/' + evt.deltaYPercent + '/' + now
+                })
+            }
+        });
+    </script>
+</body>
+</html>
